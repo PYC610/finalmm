@@ -159,18 +159,33 @@ function setupMemberCenter() {
         </article>
     `).join("") : `<div class="empty-state compact"><p>目前還沒有訂單紀錄。</p><a class="text-link" href="products.html">去逛逛商品 →</a></div>`;
 
-    const reviews = memberRead("reviewsDB", [])
-        .filter(review => review.userEmail === user.email || review.author === user.name)
-        .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
     const reviewList = document.getElementById("member-review-list");
-    reviewList.innerHTML = reviews.length ? reviews.map(review => `
-        <article class="order-history-card">
-            <div><strong>${memberEscapeHTML(review.productName)}</strong><span>${memberEscapeHTML(review.date)}</span></div>
-            <div class="review-stars">★ ${memberEscapeHTML(review.rating)}</div>
-            <p>${memberEscapeHTML(review.comment)}</p>
-            <a class="text-link" href="product.html?id=${review.productId}">查看商品 →</a>
-        </article>
-    `).join("") : `<div class="empty-state compact"><p>目前還沒有投稿評價。</p><a class="text-link" href="products.html">選一項商品來評價 →</a></div>`;
+    const renderMemberReviews = () => {
+        const reviews = memberRead("reviewsDB", [])
+            .filter(review => review.userEmail === user.email || review.author === user.name)
+            .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+
+        reviewList.innerHTML = reviews.length ? reviews.map(review => `
+            <article class="order-history-card">
+                <div><strong>${memberEscapeHTML(review.productName)}</strong><span>${memberEscapeHTML(review.date)}</span></div>
+                <div class="review-stars">★ ${memberEscapeHTML(review.rating)}</div>
+                <p>${memberEscapeHTML(review.comment)}</p>
+                <div class="member-review-actions">
+                    <a class="text-link" href="product.html?id=${review.productId}">查看商品 →</a>
+                    ${review.id ? `<button class="text-button danger" type="button" data-member-review-delete="${memberEscapeHTML(review.id)}">刪除評價</button>` : ""}
+                </div>
+            </article>
+        `).join("") : `<div class="empty-state compact"><p>目前還沒有投稿評價。</p><a class="text-link" href="products.html">選一項商品來評價 →</a></div>`;
+
+        reviewList.querySelectorAll("[data-member-review-delete]").forEach(button => {
+            button.addEventListener("click", () => {
+                const latestReviews = memberRead("reviewsDB", []);
+                memberWrite("reviewsDB", latestReviews.filter(review => review.id !== button.dataset.memberReviewDelete));
+                renderMemberReviews();
+            });
+        });
+    };
+    renderMemberReviews();
 
     document.getElementById("logout-button").addEventListener("click", () => {
         localStorage.removeItem("currentUser");

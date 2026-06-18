@@ -326,7 +326,7 @@ function renderProductDetailPage() {
                 <div class="purchase-row">
                     <div class="qty-control" aria-label="商品數量">
                         <button type="button" id="qty-minus" aria-label="減少數量">−</button>
-                        <input id="product-qty" type="number" value="1" min="1" max="20" readonly>
+                        <input id="product-qty" type="number" value="1" min="1" max="20" inputmode="numeric">
                         <button type="button" id="qty-plus" aria-label="增加數量">＋</button>
                     </div>
                     <button class="btn btn-secondary" type="button" id="detail-add-cart">加入購物車</button>
@@ -365,6 +365,15 @@ function renderProductDetailPage() {
     });
     document.getElementById("qty-plus").addEventListener("click", () => {
         quantity.value = Math.min(20, Number(quantity.value) + 1);
+    });
+    quantity.addEventListener("input", () => {
+        quantity.value = quantity.value.replace(/\D/g, "").slice(0, 2);
+    });
+    quantity.addEventListener("change", () => {
+        quantity.value = Math.min(20, Math.max(1, Number(quantity.value) || 1));
+    });
+    quantity.addEventListener("blur", () => {
+        quantity.value = Math.min(20, Math.max(1, Number(quantity.value) || 1));
     });
     document.getElementById("detail-add-cart").addEventListener("click", () => {
         addToCart(product.id, Number(quantity.value));
@@ -415,13 +424,34 @@ function renderProductReviews(product) {
     list.innerHTML = reviews.map(review => `
         <article class="review-card">
             <div class="review-card-head">
-                <strong>${escapeHTML(review.author)}</strong>
-                <span>${escapeHTML(review.date)}</span>
+                <div>
+                    <strong>${escapeHTML(review.author)}</strong>
+                    <span>${escapeHTML(review.date)}</span>
+                </div>
+                ${canDeleteReview(review) ? `<button class="text-button danger" type="button" data-review-delete="${escapeHTML(review.id)}">刪除評價</button>` : ""}
             </div>
             <div class="review-stars">★ ${escapeHTML(review.rating)}</div>
             <p>${escapeHTML(review.comment)}</p>
         </article>
     `).join("");
+
+    list.querySelectorAll("[data-review-delete]").forEach(button => {
+        button.addEventListener("click", () => {
+            deleteStoredReview(button.dataset.reviewDelete);
+            renderProductReviews(product);
+            showToast("評價已刪除");
+        });
+    });
+}
+
+function canDeleteReview(review) {
+    if (!review.id || !currentUser) return false;
+    return review.userEmail === currentUser.email || review.author === currentUser.name;
+}
+
+function deleteStoredReview(reviewId) {
+    const reviews = readStorage(STORE.reviews, []);
+    writeStorage(STORE.reviews, reviews.filter(review => review.id !== reviewId));
 }
 
 function setupProductReviewForm(product) {
