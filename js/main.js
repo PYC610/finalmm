@@ -60,6 +60,10 @@ function escapeHTML(value) {
         .replaceAll("'", "&#039;");
 }
 
+function normalizeEmail(value) {
+    return String(value || "").trim().toLowerCase();
+}
+
 function getProduct(productId) {
     return productsData.find(product => product.id === Number(productId));
 }
@@ -446,7 +450,7 @@ function renderProductReviews(product) {
 
 function canDeleteReview(review) {
     if (!review.id || !currentUser) return false;
-    return review.userEmail === currentUser.email || review.author === currentUser.name;
+    return normalizeEmail(review.userEmail) === normalizeEmail(currentUser.email);
 }
 
 function deleteStoredReview(reviewId) {
@@ -508,7 +512,7 @@ function setupProductReviewForm(product) {
             rating: Number(document.getElementById("review-rating").value),
             comment,
             author: currentUser.name,
-            userEmail: currentUser.email,
+            userEmail: normalizeEmail(currentUser.email),
             date: now.toLocaleDateString("zh-TW"),
             createdAt: now.toISOString()
         });
@@ -687,7 +691,7 @@ function setupCheckoutPage() {
         const orderId = `ORD${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`;
         const order = {
             orderId,
-            userEmail: currentUser?.email || document.getElementById("receiver-email").value.trim(),
+            userEmail: normalizeEmail(currentUser?.email || document.getElementById("receiver-email").value),
             userName: currentUser?.name || document.getElementById("receiver-name").value.trim(),
             date: now.toLocaleString("zh-TW"),
             status: "準備中",
@@ -695,7 +699,7 @@ function setupCheckoutPage() {
             receiver: {
                 name: document.getElementById("receiver-name").value.trim(),
                 phone: document.getElementById("receiver-phone").value.trim(),
-                email: document.getElementById("receiver-email").value.trim(),
+                email: normalizeEmail(document.getElementById("receiver-email").value),
                 address: document.getElementById("receiver-address").value.trim()
             },
             shippingMethod: shippingSelect.options[shippingSelect.selectedIndex].text,

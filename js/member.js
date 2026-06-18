@@ -25,6 +25,10 @@ function memberEscapeHTML(value) {
         .replaceAll("'", "&#039;");
 }
 
+function memberNormalizeEmail(value) {
+    return String(value || "").trim().toLowerCase();
+}
+
 function setupLoginForm() {
     const form = document.getElementById("login-form");
     if (!form) return;
@@ -147,9 +151,10 @@ function setupMemberCenter() {
         message.className = "form-message success";
     });
 
-    const orders = memberRead("orders", []).filter(order =>
-        order.userEmail === user.email || order.userName === user.name
-    ).reverse();
+    const accountEmail = memberNormalizeEmail(user.email);
+    const orders = memberRead("orders", [])
+        .filter(order => memberNormalizeEmail(order.userEmail) === accountEmail)
+        .reverse();
     const orderList = document.getElementById("member-order-list");
     orderList.innerHTML = orders.length ? orders.map(order => `
         <article class="order-history-card">
@@ -162,7 +167,7 @@ function setupMemberCenter() {
     const reviewList = document.getElementById("member-review-list");
     const renderMemberReviews = () => {
         const reviews = memberRead("reviewsDB", [])
-            .filter(review => review.userEmail === user.email || review.author === user.name)
+            .filter(review => memberNormalizeEmail(review.userEmail) === accountEmail)
             .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
 
         reviewList.innerHTML = reviews.length ? reviews.map(review => `

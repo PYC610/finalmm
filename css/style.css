@@ -55,12 +55,14 @@ h1, h2, h3, p { margin-top: 0; }
 .top-note {
     position: relative;
     z-index: 101;
+    display: block;
     padding: 7px 20px;
     color: #eef6f0;
     background: var(--green-900);
     text-align: center;
     font-size: 0.84rem;
     line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 .site-header {
     position: sticky;
@@ -408,6 +410,7 @@ h1, h2, h3, p { margin-top: 0; }
 .review-card-head span { color: var(--muted); font-size: 0.82rem; }
 .review-stars { color: #a46b26; font-weight: 900; }
 .review-card p, .review-form-card p { margin: 8px 0 0; color: var(--muted); font-size: 0.92rem; }
+.review-form-card p { margin-bottom: 18px; }
 .review-form-card h3 { color: var(--green-900); }
 
 .form-shell { overflow: hidden; border: 1px solid var(--border); border-radius: 26px; background: var(--white); box-shadow: var(--shadow); }
@@ -565,6 +568,35 @@ h1, h2, h3, p { margin-top: 0; }
 }
 .team-card h3 { margin-bottom: 8px; color: var(--green-900); }
 .team-card p { color: var(--muted); font-size: 0.88rem; }
+.team-share {
+    margin: 10px 0 16px;
+    text-align: left;
+}
+.team-share-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: var(--green-900);
+    font-size: 0.84rem;
+}
+.team-share-head span {
+    color: var(--green-700);
+    font-size: 0.9rem;
+    font-weight: 900;
+}
+.team-share-track {
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: #e8eee9;
+}
+.team-share-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--green-700);
+}
 .team-reflection {
     min-height: 112px;
     margin-top: 14px;
@@ -641,7 +673,8 @@ h1, h2, h3, p { margin-top: 0; }
 
 @media (max-width: 760px) {
     .container, .narrow-container { width: min(100% - 28px, 1180px); }
-    .top-note { padding: 8px 14px; font-size: 0.75rem; line-height: 1.5; }
+    .top-note { padding: 9px 14px; font-size: 0.75rem; line-height: 1.55; }
+    .site-header { position: relative; top: auto; }
     .header-inner { min-height: 70px; padding-block: 8px; }
     .brand-copy small { display: none; }
     .hero { padding-block: 42px; }
